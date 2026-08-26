@@ -431,3 +431,48 @@ func TestHostNetwork(t *testing.T) {
 		})
 	}
 }
+
+func TestIsHermetic(t *testing.T) {
+	tests := []struct {
+		name     string
+		c        *runtime.PodSandboxConfig
+		expected bool
+	}{
+		{
+			name:     "nil config returns false",
+			c:        nil,
+			expected: false,
+		},
+		{
+			name: "no annotations returns false",
+			c: &runtime.PodSandboxConfig{
+				Metadata: &runtime.PodSandboxMetadata{Name: "test"},
+			},
+			expected: false,
+		},
+		{
+			name: "hermetic annotation false returns false",
+			c: &runtime.PodSandboxConfig{
+				Annotations: map[string]string{
+					sandboxHermeticAnnotation: "false",
+				},
+			},
+			expected: false,
+		},
+		{
+			name: "hermetic annotation true returns true",
+			c: &runtime.PodSandboxConfig{
+				Annotations: map[string]string{
+					sandboxHermeticAnnotation: "true",
+				},
+			},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, isHermetic(tt.c))
+		})
+	}
+}

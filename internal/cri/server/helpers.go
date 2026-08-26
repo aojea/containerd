@@ -424,6 +424,19 @@ func (c *criService) getContainerStatuses(ctx context.Context, podSandboxID stri
 	return containerStatuses, nil
 }
 
+const sandboxHermeticAnnotation = "io.kubernetes.cri.sandbox.hermetic"
+
+// isHermetic handles checking if the sandbox was requested to be hermetic.
+func isHermetic(config *runtime.PodSandboxConfig) bool {
+	if config == nil {
+		return false
+	}
+	if config.GetAnnotations()[sandboxHermeticAnnotation] == "true" {
+		return true
+	}
+	return false
+}
+
 // hostNetwork handles checking if host networking was requested.
 func hostNetwork(config *runtime.PodSandboxConfig) bool {
 	var hostNet bool
